@@ -99,6 +99,7 @@ void setup()
     Serial.println("TEST");
 }
 
+//add pseudo code
 void loop()
 {
     playRhythm();
