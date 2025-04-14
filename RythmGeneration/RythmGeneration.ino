@@ -84,6 +84,13 @@ void playRhythm()
     }
 }
 
+//takes the user input and checks it against the generated array
+void rhythmCheck(){
+
+  
+
+}
+
 void setup()
 {
     pinMode(LED_PIN, OUTPUT);
