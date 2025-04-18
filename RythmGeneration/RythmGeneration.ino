@@ -1,7 +1,64 @@
 #define LED_PIN D10  // Pin for LED output
 
+
 const int bar_length = 32;
 int bar[bar_length];  // Rhythm pattern
+
+//Sample variables (start from matlab values):
+
+//  total number of samples we collect per rhythm
+const int samples = 100;
+
+//  total number of seconds we collect samples for
+//      (might be the same as bar_length, FIGURE OUT)
+const int secondsCount = 10;
+
+//  averages of each sample per second
+int averages[secondsCount];
+
+//pass/fail array (might be redundant)
+int passFail[secondsCount];
+
+//  user input samples
+int userInput[samples];
+
+//takes the user-input-filled array and checks it against the generated array
+void rhythmCheck(){
+
+    int firstHigh = 0;
+    //find where first rhythm is 1
+    while(bar(firstHigh)==0 && firstHigh<secondsCount){
+        firstHigh=firstHigh+1;
+    }
+
+    //if there is no first zero, throw error
+    if(firstHigh>=secondsCount){
+        Serial.println("ERROR: rhythm is full of 0s");
+    }
+
+    //start from first high and compare to start of user input
+    for(int i =firstHigh;i<secondsCount;i++){
+
+    }
+
+    //if firstHigh isnt at the beginning,
+    //  finish the remaining user input checks
+    if(firstHigh!=0){
+        for(int i = 0;i<firstHigh;i++){
+
+        }
+    }
+
+  
+
+}
+
+//fills the userInput array with the users inputs
+void getUserInput(){
+
+}
+
+
 
 // Function to compute available beats
 int availableBeats()
@@ -84,12 +141,7 @@ void playRhythm()
     }
 }
 
-//takes the user input and checks it against the generated array
-void rhythmCheck(){
 
-  
-
-}
 
 void setup()
 {
