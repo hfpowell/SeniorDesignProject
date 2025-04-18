@@ -161,7 +161,7 @@ void waitForButton(){
 }
 
 
-
+//setup
 void setup()
 {
     pinMode(LED_PIN, OUTPUT);
@@ -171,7 +171,7 @@ void setup()
     Serial.begin(115200);
     
     
-    generateRhythm();
+    //generateRhythm();
     Serial.println("TEST");
 
     //attach ISR
@@ -182,11 +182,16 @@ void setup()
 
 }
 
-//add pseudo code
+//loop function
 void loop()
 {
+    //print array (error checking code - remove in final product)
+    printArray();
+
     //generate pattern & check to make sure it has a 1
     generateRhythm();
+
+    //CHECK FOR ALL 0's
 
     //play rhythm
     playRhythm();
