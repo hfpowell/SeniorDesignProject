@@ -55,7 +55,7 @@ void rhythmCheck(){
 
 //fills the userInput array with the users inputs
 void getUserInput(){
-
+    
 }
 
 
