@@ -1,10 +1,14 @@
 #define LED_PIN D10  // Pin for LED output
+#define BUTTON_PIN D9 //Pin for Button (can change)
 
 
 const int bar_length = 32;
 int bar[bar_length];  // Rhythm pattern
 
 //Sample variables (start from matlab values):
+
+//  Beats per minute
+const int BPM = 60;
 
 //  total number of samples we collect per rhythm
 const int samples = 100;
@@ -21,6 +25,9 @@ int passFail[secondsCount];
 
 //  user input samples
 int userInput[samples];
+
+//boolean telling the code the button has been pressed
+bool buttonPressed;
 
 //takes the user-input-filled array and checks it against the generated array
 void rhythmCheck(){
@@ -53,9 +60,14 @@ void rhythmCheck(){
 
 }
 
-//fills the userInput array with the users inputs
+//controls timing for the button input ISR
 void getUserInput(){
-    
+
+}
+
+//ISR for button being pressed
+void ButtonPressed(){
+
 }
 
 
@@ -141,20 +153,53 @@ void playRhythm()
     }
 }
 
+//waits for the ISR to run and set the value
+void waitForButton(){
+    while(!buttonPressed){
+
+    }
+}
+
 
 
 void setup()
 {
     pinMode(LED_PIN, OUTPUT);
+
+    //set button pin to input
+
     Serial.begin(115200);
+    
+    
     generateRhythm();
     Serial.println("TEST");
+
+    //attach ISR
+
+    //reset buttonPressed
+    buttonPressed = false;
+
+
 }
 
 //add pseudo code
 void loop()
 {
+    //generate pattern & check to make sure it has a 1
+    generateRhythm();
+
+    //play rhythm
+    playRhythm();
+
+    //enter wait state
+    waitForButton();
+
+    //check rhythm
+    rhythmCheck();
+
+    /*
     playRhythm();
     delay(1000);  // Wait before repeating the pattern
     generateRhythm();
+    */
 }
