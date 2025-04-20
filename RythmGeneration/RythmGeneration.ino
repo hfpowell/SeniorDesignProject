@@ -62,7 +62,7 @@ void rhythmCheck(){
 
 //controls timing for the button input ISR
 void getUserInput(){
-
+    
 }
 
 //ISR for button being pressed
