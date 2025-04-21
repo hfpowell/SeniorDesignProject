@@ -100,7 +100,10 @@ void rhythmCheck(){
 
 //controls timing for the button input
 void getUserInput(){
+    int lastSampleTime = millis();
+
     //For every beat, read in user samples
+    //      Should run for 32 seconds
     for(int i=0;i<samples;i++){
         if(digitalRead(BUTTON_PIN)==HIGH){
             userInput[i] = 1;
@@ -108,7 +111,23 @@ void getUserInput(){
         else{
             userInput[i] = 0;
         }
-        delay(msDelay);
+        
+
+        /*TEST CODE - REMOVE
+        if(millis()-MilliTimer>=1000){
+            Serial.print(".");
+            MilliTimer=millis();
+        }
+        //*/
+
+        while(millis()-lastSampleTime<msDelay){
+            //looper function
+            Serial.print("Looping at ");
+            Serial.print(millis());
+            Serial.println("Millis");
+        }
+        //delay(msDelay);
+
     }
 }
 
@@ -160,13 +179,25 @@ void updateArray(int startIndex, int numValues, int newValue){
 }
 
 void printArray(){
-    Serial.println("=== NEW RYTHM ===");
+    Serial.println("=== NEW RHYTHM ===");
     for (int i = 0; i < bar_length; i++)
     {
         Serial.print(bar[i]);
     }
     Serial.println();
 }
+
+//General function to print arrays (seems to work)
+void printArray(const int *arr, size_t len){
+  Serial.print('[');
+  for (size_t i = 0; i < len; ++i) {
+    Serial.print(arr[i]);
+    if (i < len - 1) Serial.print(", ");
+  }
+  Serial.println(']');
+}
+
+
 
 void generateRhythm(){
     for (int i = 0; i < bar_length; i++)
@@ -181,6 +212,8 @@ void generateRhythm(){
     }
 }
 
+
+
 void playRhythm(){
       printArray();
     for (int i = 0; i < bar_length; i++)
@@ -189,6 +222,7 @@ void playRhythm(){
         delay(200);  // Adjust delay for timing (200ms per step)
     }
 }
+
 
 //waits for the ISR to run and set the value (DOESNT LOOP?)
 void waitForButton(){
@@ -256,9 +290,24 @@ void setup(){
 void loop()
 {
 
+    //IF WE CANT GET THIS TO WORK DO A COUNTDOWN
     //waitForButton();
 
-    //*
+    Serial.println("3");
+    delay(1000);
+    Serial.println("2");
+    delay(1000);
+    Serial.println("1");
+    delay(1000);
+    Serial.print("READING INPUT");
+
+    getUserInput();
+
+    printArray(userInput,samples);
+
+    delay(2000);
+
+    /*
     if(userInputDetected){
         if(millis()-MilliTimer>=1000){
             if(buttonPressed){
