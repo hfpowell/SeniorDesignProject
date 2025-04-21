@@ -124,7 +124,7 @@ void getUserInput(){
             //looper function
             Serial.print("Looping at ");
             Serial.print(millis());
-            Serial.println("Millis");
+            Serial.println(" Millis");
         }
         //delay(msDelay);
 
@@ -261,11 +261,13 @@ void setup(){
     
     
     //generateRhythm();
-    Serial.println("TEST");
+
+    Serial.println("----------BEGINNING OF CODE-----------");
 
     //attach ISR
     attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), ButtonPressed, CHANGE);
 
+    //
     MilliTimer=millis();
 
     //reset buttonPressed
