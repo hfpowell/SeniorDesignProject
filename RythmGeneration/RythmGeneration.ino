@@ -14,7 +14,7 @@ const int BPM = 60;
 const int sampPerBeat = 100;
 
 //  total number of samples we collect
-int samples;
+const int samples=sampPerBeat*bar_length;
 
 
 /*
@@ -51,20 +51,20 @@ void rhythmCheck(){
 
     int firstHigh = 0;
     //find where first rhythm is 1
-    while(bar(firstHigh)==0 && firstHigh<secondsCount){
+    while(bar[firstHigh]==0 && firstHigh<bar_length){
         firstHigh=firstHigh+1;
     }
 
     //if there is no first zero, throw error
-    if(firstHigh>=secondsCount){
+    if(firstHigh>=bar_length){
         Serial.println("ERROR: rhythm is full of 0s");
     }
 
     //start from first high and compare to start of user input
     Serial.println("Pass/Fail output:");
     int counter = 0;
-    for(int i =firstHigh;i<secondsCount;i++){
-        if((bar[i]==1&&averages[counter]>=.5)||(bar[i]==0&&averages[counter]<=.5))){
+    for(int i =firstHigh;i<bar_length;i++){
+        if((bar[i]==1&&averages[counter]>=.5)||(bar[i]==0&&averages[counter]<=.5)){
             passFail[i]=1;
             Serial.print("1");
         }
@@ -79,7 +79,7 @@ void rhythmCheck(){
     //  finish the remaining user input checks
     if(firstHigh!=0){
         for(int i = 0;i<firstHigh;i++){
-            if((bar[i]==1&&averages[counter]>=.5)||(bar[i]==0&&averages[counter]<=.5))){
+            if((bar[i]==1&&averages[counter]>=.5)||(bar[i]==0&&averages[counter]<=.5)){
                 passFail[i]=1;
                 Serial.print("1");
             }
@@ -112,7 +112,14 @@ void getUserInput(){
 //*
 //ISR for button being pressed
 void ButtonPressed(){
-    buttonPressed=true;
+    //Set boolean depending if it's a low edge or high edge
+    if(digitalRead(BUTTON_PIN)==HIGH){
+        buttonPressed=true;
+    }
+    else{
+        buttonPressed=false;
+    }
+    
 }
 //*/
 
@@ -212,6 +219,7 @@ void setup()
     pinMode(LED_PIN, OUTPUT);
 
     //set button pin to input
+    pinMode(BUTTON_PIN, INPUT);
 
     Serial.begin(115200);
     
@@ -232,7 +240,7 @@ void setup()
     msDelay = 60000 / (BPM*samples);
 
     //Calculate total sample amount
-    samples=sampPerBeat*bar_length;
+    //samples=sampPerBeat*bar_length;
 
     //TEST - print ms delay calculation
     Serial.println("ms Delay:");
@@ -279,4 +287,5 @@ void loop()
     delay(1000);  // Wait before repeating the pattern
     generateRhythm();
     */
+    
 }
