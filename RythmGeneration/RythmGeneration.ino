@@ -1,5 +1,5 @@
 #define LED_PIN D10  // Pin for LED output
-#define BUTTON_PIN D9 //Pin for Button (can change)
+#define BUTTON_PIN D5 //Pin for Button (can change)
 
 
 const int bar_length = 32;
@@ -42,6 +42,9 @@ int userInput[samples];
 
 //boolean telling the code the button has been pressed
 bool buttonPressed;
+
+//
+bool userInputDetected;
 
 //Millis timer (for test code)
 unsigned long MilliTimer;
@@ -109,24 +112,11 @@ void getUserInput(){
     }
 }
 
-//*
-//ISR for button being pressed
-void ButtonPressed(){
-    //Set boolean depending if it's a low edge or high edge
-    if(digitalRead(BUTTON_PIN)==HIGH){
-        buttonPressed=true;
-    }
-    else{
-        buttonPressed=false;
-    }
-    
-}
-//*/
+
 
 
 // Function to compute available beats
-int availableBeats()
-{
+int availableBeats(){
     int space = 0;
     for (int i = 0; i < bar_length; i++)
     {
@@ -137,8 +127,7 @@ int availableBeats()
 }
 
 // Function to generate a random note or rest
-int randomNoteGenerator(int space)
-{
+int randomNoteGenerator(int space){
     int notes[] = {2, 4, 8}; // Eighth, quarter, half note durations
     int chosen_note = 0;
     int random_number;
@@ -158,8 +147,7 @@ int randomNoteGenerator(int space)
 }
 
 // Function to update the array
-void updateArray(int startIndex, int numValues, int newValue)
-{
+void updateArray(int startIndex, int numValues, int newValue){
     if (newValue < 0)
         newValue = 0;
     else
@@ -171,8 +159,7 @@ void updateArray(int startIndex, int numValues, int newValue)
     }
 }
 
-void printArray()
-{
+void printArray(){
     Serial.println("=== NEW RYTHM ===");
     for (int i = 0; i < bar_length; i++)
     {
@@ -181,8 +168,7 @@ void printArray()
     Serial.println();
 }
 
-void generateRhythm()
-{
+void generateRhythm(){
     for (int i = 0; i < bar_length; i++)
         bar[i] = -1;
 
@@ -195,8 +181,7 @@ void generateRhythm()
     }
 }
 
-void playRhythm()
-{
+void playRhythm(){
       printArray();
     for (int i = 0; i < bar_length; i++)
     {
@@ -205,17 +190,34 @@ void playRhythm()
     }
 }
 
-//waits for the ISR to run and set the value
+//waits for the ISR to run and set the value (DOESNT LOOP?)
 void waitForButton(){
     while(!buttonPressed){
-
+        Serial.println("Entered wait state");
     }
+
+    Serial.println("Exited wait state");
 }
+
+//*
+//ISR for button being pressed
+void ButtonPressed(){
+
+    //Set boolean depending if it's a low edge or high edge
+    if(digitalRead(BUTTON_PIN)){
+        buttonPressed=true;
+        //userInputDetected=true;
+    }
+    else{
+        buttonPressed=false;
+    }
+    
+}
+//*/
 
 
 //setup
-void setup()
-{
+void setup(){
     pinMode(LED_PIN, OUTPUT);
 
     //set button pin to input
@@ -228,12 +230,15 @@ void setup()
     Serial.println("TEST");
 
     //attach ISR
-    attachInterrupt(digitalPinToInterrupt(D9), ButtonPressed, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), ButtonPressed, CHANGE);
 
     MilliTimer=millis();
 
     //reset buttonPressed
     buttonPressed = false;
+
+    //reset userInputDetected
+    userInputDetected=false;
 
     //set msDelay based off BPM and # of samples
     //  should be 10ms in our implementation;
@@ -251,19 +256,25 @@ void setup()
 void loop()
 {
 
-    /*
-    if(millis()-MilliTimer>=1000){
-        if(buttonPressed){
-        Serial.println("Button Pressed");
+    //waitForButton();
+
+    //*
+    if(userInputDetected){
+        if(millis()-MilliTimer>=1000){
+            if(buttonPressed){
+            Serial.println("Button Pressed");
+            }
+            else{
+                Serial.println("Button Not Pressed");
+            }
+            MilliTimer=millis();
         }
-        else{
-            Serial.println("Button Not Pressed");
-        }
-        MilliTimer=millis();
+        userInputDetected=false;
     }
     //*/
 
-    if(millis()-MilliTimer>=1000){
+    /* WORKING TEST CODE - USE FOR REFERENCE
+    if(millis()-MilliTimer>=100){
         if(digitalRead(BUTTON_PIN)==HIGH){
         Serial.println("Button Pressed");
         }
@@ -272,11 +283,19 @@ void loop()
         }
         MilliTimer=millis();
     }
+
+    //*/
     
     
     /*
     //print array (error checking code - remove in final product)
     printArray();
+
+
+
+
+
+    //-------START OF FINAL PRODUCT CODE----------------
 
     //generate pattern & check to make sure it has a 1
     generateRhythm();
