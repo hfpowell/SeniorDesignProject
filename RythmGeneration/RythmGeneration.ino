@@ -237,7 +237,7 @@ void setup()
 
     //set msDelay based off BPM and # of samples
     //  should be 10ms in our implementation;
-    msDelay = 60000 / (BPM*samples);
+    msDelay = 60000 / (BPM*sampPerBeat);
 
     //Calculate total sample amount
     //samples=sampPerBeat*bar_length;
@@ -251,8 +251,20 @@ void setup()
 void loop()
 {
 
-    if(millis()-MilliTimer>=100){
+    /*
+    if(millis()-MilliTimer>=1000){
         if(buttonPressed){
+        Serial.println("Button Pressed");
+        }
+        else{
+            Serial.println("Button Not Pressed");
+        }
+        MilliTimer=millis();
+    }
+    //*/
+
+    if(millis()-MilliTimer>=1000){
+        if(digitalRead(BUTTON_PIN)==HIGH){
         Serial.println("Button Pressed");
         }
         else{
