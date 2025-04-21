@@ -10,41 +10,24 @@ int bar[bar_length];  // Rhythm pattern
 //  Beats per minute
 const int BPM = 60;
 
-//  Samples per beat
-const int sampPerBeat = 100;
+//  total number of samples we collect per rhythm
+const int samples = 100;
 
-//  total number of samples we collect
-int samples;
-
-
-/*
 //  total number of seconds we collect samples for
 //      (might be the same as bar_length, FIGURE OUT)
-//      I BELIEVE THEY ARE THE SAME - THIS IS REDUNDANT/OUTDATED CODE
 const int secondsCount = 10;
-//*/
 
-//  The delay (in ms) between user input samples
-//  msDelay = 60,000 millis / (BPM*samples);
-int msDelay;
-
-//  averages of each sample per beat
-int averages[bar_length];
-
-//  array holding whether 
-int highLow[bar_length];
+//  averages of each sample per second
+int averages[secondsCount];
 
 //pass/fail array (might be redundant)
-int passFail[bar_length];
+int passFail[secondsCount];
 
 //  user input samples
 int userInput[samples];
 
 //boolean telling the code the button has been pressed
 bool buttonPressed;
-
-//Millis timer (for test code)
-unsigned long MilliTimer;
 
 //takes the user-input-filled array and checks it against the generated array
 void rhythmCheck(){
@@ -61,33 +44,15 @@ void rhythmCheck(){
     }
 
     //start from first high and compare to start of user input
-    Serial.println("Pass/Fail output:");
-    int counter = 0;
     for(int i =firstHigh;i<secondsCount;i++){
-        if((bar[i]==1&&averages[counter]>=.5)||(bar[i]==0&&averages[counter]<=.5))){
-            passFail[i]=1;
-            Serial.print("1");
-        }
-        else{
-            passFail[i]=0;
-            Serial.print("0");
-        }
-        counter++;
+
     }
 
     //if firstHigh isnt at the beginning,
     //  finish the remaining user input checks
     if(firstHigh!=0){
         for(int i = 0;i<firstHigh;i++){
-            if((bar[i]==1&&averages[counter]>=.5)||(bar[i]==0&&averages[counter]<=.5))){
-                passFail[i]=1;
-                Serial.print("1");
-            }
-            else{
-                passFail[i]=0;
-                Serial.print("0");
-            }
-            counter++;
+
         }
     }
 
@@ -95,26 +60,16 @@ void rhythmCheck(){
 
 }
 
-//controls timing for the button input
+//controls timing for the button input ISR
 void getUserInput(){
-    //For every beat, read in user samples
-    for(int i=0;i<samples;i++){
-        if(digitalRead(BUTTON_PIN)==HIGH){
-            userInput[i] = 1;
-        }
-        else{
-            userInput[i] = 0;
-        }
-        delay(msDelay);
-    }
+    
 }
 
-//*
 //ISR for button being pressed
 void ButtonPressed(){
-    buttonPressed=true;
+
 }
-//*/
+
 
 
 // Function to compute available beats
@@ -220,41 +175,16 @@ void setup()
     Serial.println("TEST");
 
     //attach ISR
-    attachInterrupt(digitalPinToInterrupt(D9), ButtonPressed, CHANGE);
-
-    MilliTimer=millis();
 
     //reset buttonPressed
     buttonPressed = false;
 
-    //set msDelay based off BPM and # of samples
-    //  should be 10ms in our implementation;
-    msDelay = 60000 / (BPM*samples);
 
-    //Calculate total sample amount
-    samples=sampPerBeat*bar_length;
-
-    //TEST - print ms delay calculation
-    Serial.println("ms Delay:");
-    Serial.println(msDelay);
 }
 
 //loop function
 void loop()
 {
-
-    if(millis()-MilliTimer>=100){
-        if(buttonPressed){
-        Serial.println("Button Pressed");
-        }
-        else{
-            Serial.println("Button Not Pressed");
-        }
-        MilliTimer=millis();
-    }
-    
-    
-    /*
     //print array (error checking code - remove in final product)
     printArray();
 
@@ -271,8 +201,6 @@ void loop()
 
     //check rhythm
     rhythmCheck();
-
-    //*/
 
     /*
     playRhythm();
