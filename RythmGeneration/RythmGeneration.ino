@@ -43,13 +43,14 @@ int userInput[samples];
 //boolean telling the code the button has been pressed
 bool buttonPressed;
 
-//
+//experimental boolean (only used for bad testing)
 bool userInputDetected;
 
 //Millis timer (for test code)
 unsigned long MilliTimer;
 
 //takes the user-input-filled array and checks it against the generated array
+//  NEED TO TEST
 void rhythmCheck(){
 
     int firstHigh = 0;
@@ -99,12 +100,16 @@ void rhythmCheck(){
 }
 
 //controls timing for the button input
+//      (TIMING WORKS)
 void getUserInput(){
     int lastSampleTime = millis();
+    int firstSampleTime=lastSampleTime;
 
     //For every beat, read in user samples
-    //      Should run for 32 seconds
+    //      Should run for 32 seconds - FIX
     for(int i=0;i<samples;i++){
+        bool testTimingLoop = false;
+
         if(digitalRead(BUTTON_PIN)==HIGH){
             userInput[i] = 1;
         }
@@ -112,23 +117,41 @@ void getUserInput(){
             userInput[i] = 0;
         }
         
-
-        /*TEST CODE - REMOVE
-        if(millis()-MilliTimer>=1000){
-            Serial.print(".");
-            MilliTimer=millis();
+        //loops until timing requirement is met
+        while(millis()-lastSampleTime<msDelay){
+            
+            /*
+            //looper function (below is test timing code)
+            if(!testTimingLoop){
+                testTimingLoop=true;
+                Serial.print("Looping at ");
+                Serial.print(millis());
+                Serial.print(" Millis");
+            }
+            else{
+                Serial.print(".");
+            }
+            //*/
+            
         }
+
+        lastSampleTime = millis();
+
+        /*
+        Serial.println();
+        Serial.print("Millis: ");
+        Serial.println(millis());
         //*/
 
-        while(millis()-lastSampleTime<msDelay){
-            //looper function
-            Serial.print("Looping at ");
-            Serial.print(millis());
-            Serial.println(" Millis");
-        }
-        //delay(msDelay);
+        /*
+        Serial.print("Sample Iteration: ");
+        Serial.println(i);
+        //*/
 
     }
+    Serial.print("Elapsed Sample Time: ");
+    Serial.print((lastSampleTime-firstSampleTime)/1000);
+    Serial.println(" Seconds");
 }
 
 
@@ -178,6 +201,7 @@ void updateArray(int startIndex, int numValues, int newValue){
     }
 }
 
+//prints the active bar
 void printArray(){
     Serial.println("=== NEW RHYTHM ===");
     for (int i = 0; i < bar_length; i++)
@@ -188,17 +212,41 @@ void printArray(){
 }
 
 //General function to print arrays (seems to work)
+//  (prints each beat on a separate line)
 void printArray(const int *arr, size_t len){
   Serial.print('[');
   for (size_t i = 0; i < len; ++i) {
+
     Serial.print(arr[i]);
     if (i < len - 1) Serial.print(", ");
+
+  }
+  Serial.println(']');
+}
+
+//Function that prints total output of all samples
+//  (prints each beat on a separate line)
+//      j is # of samples per beat (named bc of 2d array)
+void printArray(const int *arr, size_t len, int j){
+  Serial.print('[');
+  for (size_t i = 0; i < len; ++i) {
+
+    //Every beat print on a new line
+    if(i%j==0){
+        Serial.println();
+    }
+
+    Serial.print(arr[i]);
+    if (i < len - 1) Serial.print(", ");
+
+    
+
   }
   Serial.println(']');
 }
 
 
-
+//TEST
 void generateRhythm(){
     for (int i = 0; i < bar_length; i++)
         bar[i] = -1;
@@ -213,7 +261,7 @@ void generateRhythm(){
 }
 
 
-
+//TEST
 void playRhythm(){
       printArray();
     for (int i = 0; i < bar_length; i++)
@@ -224,17 +272,44 @@ void playRhythm(){
 }
 
 
-//waits for the ISR to run and set the value (DOESNT LOOP?)
+//waits for the ISR to run and set the value
+//      (works for now)
 void waitForButton(){
-    while(!buttonPressed){
-        Serial.println("Entered wait state");
+    long waitLastMillis=millis();
+    Serial.println("Entered wait state");
+    bool waitStateBool = false;
+
+    //attempted debounce
+    while(!waitStateBool){
+
+        if(digitalRead(BUTTON_PIN)){
+            delay(10);
+            if(digitalRead(BUTTON_PIN)){
+                waitStateBool=true;
+            }
+        }
+
+        if(millis()-waitLastMillis>1000){
+            Serial.println("In wait state");
+            waitLastMillis=millis();
+        }
     }
+    
+    /*  Enters but doesnt leave (test with interrupt attached)
+    while(!buttonPressed){
+        if(millis()-waitLastMillis>1000){
+            Serial.println("In wait state");
+            waitLastMillis=millis();
+        }
+        
+    }
+    //*/
 
     Serial.println("Exited wait state");
 }
 
 //*
-//ISR for button being pressed
+//ISR for button being pressed (MIGHT NEED TO DELETE)
 void ButtonPressed(){
 
     //Set boolean depending if it's a low edge or high edge
@@ -265,7 +340,7 @@ void setup(){
     Serial.println("----------BEGINNING OF CODE-----------");
 
     //attach ISR
-    attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), ButtonPressed, CHANGE);
+    //attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), ButtonPressed, CHANGE);
 
     //
     MilliTimer=millis();
@@ -301,13 +376,19 @@ void loop()
     delay(1000);
     Serial.println("1");
     delay(1000);
-    Serial.print("READING INPUT");
+    Serial.println("READING INPUT");
 
     getUserInput();
 
-    printArray(userInput,samples);
+    //TEST RHYTHM CHECK - PLUG IN HARDCODE ARRAY FOR GENERATED AND USER ONE
+    //                          AND CHECK EXPECTED OUTPUT
 
-    delay(2000);
+
+    printArray(userInput,samples,sampPerBeat);
+
+    waitForButton();
+
+    delay(5000);
 
     /*
     if(userInputDetected){
@@ -336,28 +417,26 @@ void loop()
     }
 
     //*/
-    
-    
-    /*
-    //print array (error checking code - remove in final product)
-    printArray();
-
-
 
 
 
     //-------START OF FINAL PRODUCT CODE----------------
 
+    /*
+
     //generate pattern & check to make sure it has a 1
     generateRhythm();
 
-    //CHECK FOR ALL 0's
+    //CHECK FOR ALL 0's IN PATTERN
 
     //play rhythm
     playRhythm();
 
     //enter wait state
     waitForButton();
+
+    //Take user input (WORKS)
+    getUserInput();
 
     //check rhythm
     rhythmCheck();
