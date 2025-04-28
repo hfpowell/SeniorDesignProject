@@ -378,13 +378,58 @@ void loop()
     delay(1000);
     Serial.println("READING INPUT");
 
-    getUserInput();
-
-    //TEST RHYTHM CHECK - PLUG IN HARDCODE ARRAY FOR GENERATED AND USER ONE
-    //                          AND CHECK EXPECTED OUTPUT
+    //getUserInput();
 
 
+
+    //BEGINNING OF TEST RHYTHM CHECK - PLUG IN HARDCODE ARRAY FOR GENERATED AND USER ONE
+    //                       AND CHECK EXPECTED OUTPUT:
+
+    //hardcode arrays
+    //EXPECTED ARRAY: FIRST HALF 0s SECOND HALF 1s
+    for(int i=0;i<bar_length;i++){
+        if(i<(bar_length/2)){
+            bar[i]=0;
+        }
+        else{
+            bar[i]=1;
+        }
+
+    }
+    //User input array
+    for(int i=0;i<samples;i++){
+        if(i<(samples/2)){
+            userInput[i]=0;
+        }
+        else{
+            userInput[i]=1;
+        }
+
+    }
+    
+    //print user input array
+    Serial.println("User input array:");
     printArray(userInput,samples,sampPerBeat);
+    
+    //run rhythmCheck()
+    rhythmCheck();
+
+    //print out averages and pass/fail (should be all 1s for first test)
+    Serial.print("Averages: ");
+    printArray(averages,bar_length);
+
+    Serial.println();
+    Serial.print("Pass/Fail: ");
+    printArray(passFail,bar_length);
+    
+
+
+
+
+
+    
+
+
 
     waitForButton();
 
@@ -432,7 +477,7 @@ void loop()
     //play rhythm
     playRhythm();
 
-    //enter wait state
+    //enter wait state (WORKS)
     waitForButton();
 
     //Take user input (WORKS)
@@ -448,5 +493,8 @@ void loop()
     delay(1000);  // Wait before repeating the pattern
     generateRhythm();
     */
+    
+}
+/
     
 }
