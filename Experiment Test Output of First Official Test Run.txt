@@ -1,0 +1,18 @@
+----------BEGINNING OF CODE-----------
+ms Delay:
+10
+
+=== NEW RHYTHM ===
+11111111000000000011111100000000
+
+Entered wait state
+In wait state
+In wait state
+In wait state
+Exited wait state
+READING INPUT
+Elapsed Sample Time: 32 Seconds
+
+Averages: [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+Pass/Fail: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]

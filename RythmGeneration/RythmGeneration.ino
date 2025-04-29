@@ -29,6 +29,7 @@ const int secondsCount = 10;
 int msDelay;
 
 //  averages of each sample per beat
+//      MIGHT NEED TO MAKE IT A FLOAT
 int averages[bar_length];
 
 //  array holding whether 
@@ -49,12 +50,36 @@ bool userInputDetected;
 //Millis timer (for test code)
 unsigned long MilliTimer;
 
+
 //takes the user-input-filled array and checks it against the generated array
 //  NEED TO TEST
+//
+//      NEED TO ACTUALLY CALCULATE AVERAGES BEFORE PASS/FAIL!!!!!!!
 void rhythmCheck(){
 
-    int firstHigh = 0;
+    //create array of averages of each userInput row (leave as raw, dont shift based on firstHigh)
+    int avgIter = 0;
+    int tempAvg=0;
+    for(int i=0;i<samples;i++){
+
+        tempAvg = tempAvg + userInput[i];
+
+        if((i+1)%sampPerBeat==0){
+            //put average into average array
+            if(((float)(tempAvg/sampPerBeat))>=.5){
+                averages[avgIter]=1;
+            }
+            else{
+                averages[avgIter]=0;
+            }
+            //iterate average & reset tempAvg
+            tempAvg=0;
+            avgIter++;
+        }
+    }
+
     //find where first rhythm is 1
+    int firstHigh = 0;
     while(bar[firstHigh]==0 && firstHigh<bar_length){
         firstHigh=firstHigh+1;
     }
@@ -64,17 +89,18 @@ void rhythmCheck(){
         Serial.println("ERROR: rhythm is full of 0s");
     }
 
+
     //start from first high and compare to start of user input
-    Serial.println("Pass/Fail output:");
+    //Serial.println("Pass/Fail output:");
     int counter = 0;
     for(int i =firstHigh;i<bar_length;i++){
         if((bar[i]==1&&averages[counter]>=.5)||(bar[i]==0&&averages[counter]<=.5)){
             passFail[i]=1;
-            Serial.print("1");
+            //Serial.print("1");
         }
         else{
             passFail[i]=0;
-            Serial.print("0");
+            //Serial.print("0");
         }
         counter++;
     }
@@ -85,11 +111,11 @@ void rhythmCheck(){
         for(int i = 0;i<firstHigh;i++){
             if((bar[i]==1&&averages[counter]>=.5)||(bar[i]==0&&averages[counter]<=.5)){
                 passFail[i]=1;
-                Serial.print("1");
+                //Serial.print("1");
             }
             else{
                 passFail[i]=0;
-                Serial.print("0");
+                //Serial.print("0");
             }
             counter++;
         }
@@ -258,6 +284,7 @@ void generateRhythm(){
         updateArray(i, abs(note), note);
         i += abs(note);
     }
+
 }
 
 
@@ -303,12 +330,12 @@ void waitForButton(){
         }
         
     }
-    //*/
+    */
 
     Serial.println("Exited wait state");
 }
 
-//*
+/*
 //ISR for button being pressed (MIGHT NEED TO DELETE)
 void ButtonPressed(){
 
@@ -324,6 +351,20 @@ void ButtonPressed(){
 }
 //*/
 
+void displayResults(){
+    Serial.println("User Input: ");
+    printArray(userInput,samples,sampPerBeat);
+
+    Serial.println();
+
+    Serial.print("Averages: ");
+    printArray(averages,bar_length);
+
+    Serial.println();
+    Serial.print("Pass/Fail: ");
+    printArray(passFail,bar_length);
+}
+
 
 //setup
 void setup(){
@@ -333,9 +374,7 @@ void setup(){
     pinMode(BUTTON_PIN, INPUT);
 
     Serial.begin(115200);
-    
-    
-    //generateRhythm();
+
 
     Serial.println("----------BEGINNING OF CODE-----------");
 
@@ -370,6 +409,8 @@ void loop()
     //IF WE CANT GET THIS TO WORK DO A COUNTDOWN
     //waitForButton();
 
+    /*
+
     Serial.println("3");
     delay(1000);
     Serial.println("2");
@@ -378,6 +419,8 @@ void loop()
     delay(1000);
     Serial.println("READING INPUT");
 
+    //*/
+
     //getUserInput();
 
 
@@ -385,6 +428,7 @@ void loop()
     //BEGINNING OF TEST RHYTHM CHECK - PLUG IN HARDCODE ARRAY FOR GENERATED AND USER ONE
     //                       AND CHECK EXPECTED OUTPUT:
 
+    /*
     //hardcode arrays
     //EXPECTED ARRAY: FIRST HALF 0s SECOND HALF 1s
     for(int i=0;i<bar_length;i++){
@@ -396,13 +440,13 @@ void loop()
         }
 
     }
-    //User input array
+    //User input array (SHOULD BE FIRST HALF 1s AND SECOND HALF 0s based on our logic)
     for(int i=0;i<samples;i++){
         if(i<(samples/2)){
-            userInput[i]=0;
+            userInput[i]=1;
         }
         else{
-            userInput[i]=1;
+            userInput[i]=0;
         }
 
     }
@@ -414,6 +458,8 @@ void loop()
     //run rhythmCheck()
     rhythmCheck();
 
+    
+
     //print out averages and pass/fail (should be all 1s for first test)
     Serial.print("Averages: ");
     printArray(averages,bar_length);
@@ -424,16 +470,8 @@ void loop()
     
 
 
-
-
-
-    
-
-
-
     waitForButton();
-
-    delay(5000);
+    //*/
 
     /*
     if(userInputDetected){
@@ -467,18 +505,23 @@ void loop()
 
     //-------START OF FINAL PRODUCT CODE----------------
 
-    /*
+    //*
 
     //generate pattern & check to make sure it has a 1
     generateRhythm();
 
+    //Output bar to match to serial (testing)
+    //Serial.println("Bar To Match:");
+    printArray();
+
     //CHECK FOR ALL 0's IN PATTERN
 
     //play rhythm
-    playRhythm();
+    //playRhythm();
 
     //enter wait state (WORKS)
     waitForButton();
+    Serial.println("READING INPUT");
 
     //Take user input (WORKS)
     getUserInput();
@@ -486,15 +529,14 @@ void loop()
     //check rhythm
     rhythmCheck();
 
+    displayResults();
+
+    delay(5000);  // Wait before repeating the pattern
     //*/
 
     /*
     playRhythm();
     delay(1000);  // Wait before repeating the pattern
     generateRhythm();
-    */
-    
-}
-/
-    
+    //*/
 }
