@@ -1,5 +1,6 @@
-#define LED_PIN D10  // Pin for LED output
+//#define LED_PIN D10  // Pin for LED output
 #define BUTTON_PIN D5 //Pin for Button (can change)
+#define VIBRATION_PIN D10 //Pin for Motor
 
 
 const int bar_length = 32;
@@ -49,6 +50,9 @@ bool userInputDetected;
 
 //Millis timer (for test code)
 unsigned long MilliTimer;
+
+
+bool printedWaiting;
 
 
 //takes the user-input-filled array and checks it against the generated array
@@ -138,9 +142,11 @@ void getUserInput(){
 
         if(digitalRead(BUTTON_PIN)==HIGH){
             userInput[i] = 1;
+            //digitalWrite(VIBRATION_PIN,HIGH);
         }
         else{
             userInput[i] = 0;
+            //digitalWrite(VIBRATION_PIN,LOW);
         }
         
         //loops until timing requirement is met
@@ -179,7 +185,6 @@ void getUserInput(){
     Serial.print((lastSampleTime-firstSampleTime)/1000);
     Serial.println(" Seconds");
 }
-
 
 
 
@@ -290,12 +295,15 @@ void generateRhythm(){
 
 //TEST
 void playRhythm(){
-      printArray();
+    printArray();
+    Serial.print("Bar Vibrations: ");
     for (int i = 0; i < bar_length; i++)
     {
-        digitalWrite(LED_PIN, bar[i]);
-        delay(200);  // Adjust delay for timing (200ms per step)
+        Serial.print(bar[i]);
+        digitalWrite(VIBRATION_PIN, bar[i]);
+        delay((BPM/60)*1000);  // Adjust delay for timing
     }
+    Serial.println();
 }
 
 
@@ -317,7 +325,14 @@ void waitForButton(){
         }
 
         if(millis()-waitLastMillis>1000){
-            Serial.println("In wait state");
+            if(!printedWaiting){
+                Serial.print("In wait state");
+                printedWaiting=true;
+            }
+            else{
+                Serial.print(".");
+            }
+            
             waitLastMillis=millis();
         }
     }
@@ -331,7 +346,7 @@ void waitForButton(){
         
     }
     */
-
+    Serial.println();
     Serial.println("Exited wait state");
 }
 
@@ -373,6 +388,8 @@ void setup(){
     //set button pin to input
     pinMode(BUTTON_PIN, INPUT);
 
+    pinMode(VIBRATION_PIN,OUTPUT);
+
     Serial.begin(115200);
 
 
@@ -400,12 +417,16 @@ void setup(){
     //TEST - print ms delay calculation
     Serial.println("ms Delay:");
     Serial.println(msDelay);
+
+    printedWaiting=false;
+
+    //digitalWrite(VIBRATION_PIN,LOW);
 }
 
 //loop function
 void loop()
 {
-
+    
     //IF WE CANT GET THIS TO WORK DO A COUNTDOWN
     //waitForButton();
 
@@ -500,26 +521,30 @@ void loop()
     }
 
     //*/
-
+    
 
 
     //-------START OF FINAL PRODUCT CODE----------------
 
     //*
 
+    //temporary vibration fix
+    digitalWrite(VIBRATION_PIN,LOW);
+
     //generate pattern & check to make sure it has a 1
     generateRhythm();
 
-    //Output bar to match to serial (testing)
-    //Serial.println("Bar To Match:");
-    printArray();
+    //Output & play bar to match to serial
+    //playRhythm();
 
     //CHECK FOR ALL 0's IN PATTERN
 
     //play rhythm
-    //playRhythm();
+    playRhythm();
+    digitalWrite(VIBRATION_PIN,LOW);
 
     //enter wait state (WORKS)
+    printedWaiting=false;
     waitForButton();
     Serial.println("READING INPUT");
 
