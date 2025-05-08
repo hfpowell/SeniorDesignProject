@@ -1,6 +1,6 @@
 //#define LED_PIN D10  // Pin for LED output
 #define BUTTON_PIN D5 //Pin for Button (can change)
-#define VIBRATION_PIN D10 //Pin for Motor
+#define VIBRATION_PIN D9 //Pin for Motor
 
 
 const int bar_length = 32;
@@ -16,6 +16,10 @@ const int sampPerBeat = 100;
 
 //  total number of samples we collect
 const int samples=sampPerBeat*bar_length;
+
+
+// Threshold value to compare averages to when checking
+float thresholdAvg = .5;
 
 
 /*
@@ -98,7 +102,7 @@ void rhythmCheck(){
     //Serial.println("Pass/Fail output:");
     int counter = 0;
     for(int i =firstHigh;i<bar_length;i++){
-        if((bar[i]==1&&averages[counter]>=.5)||(bar[i]==0&&averages[counter]<=.5)){
+        if((bar[i]==1&&averages[counter]>thresholdAvg)||(bar[i]==0&&averages[counter]<=thresholdAvg)){
             passFail[i]=1;
             //Serial.print("1");
         }
@@ -113,7 +117,7 @@ void rhythmCheck(){
     //  finish the remaining user input checks
     if(firstHigh!=0){
         for(int i = 0;i<firstHigh;i++){
-            if((bar[i]==1&&averages[counter]>=.5)||(bar[i]==0&&averages[counter]<=.5)){
+            if((bar[i]==1&&averages[counter]>thresholdAvg)||(bar[i]==0&&averages[counter]<=thresholdAvg)){
                 passFail[i]=1;
                 //Serial.print("1");
             }
@@ -293,7 +297,7 @@ void generateRhythm(){
 }
 
 
-//TEST
+//TESTED - WORKS
 void playRhythm(){
     printArray();
     Serial.print("Bar Vibrations: ");
@@ -320,7 +324,10 @@ void waitForButton(){
         if(digitalRead(BUTTON_PIN)){
             delay(10);
             if(digitalRead(BUTTON_PIN)){
-                waitStateBool=true;
+                delay(10);
+                if(digitalRead(BUTTON_PIN)){
+                    waitStateBool=true;
+                }
             }
         }
 
@@ -383,7 +390,7 @@ void displayResults(){
 
 //setup
 void setup(){
-    pinMode(LED_PIN, OUTPUT);
+    //pinMode(LED_PIN, OUTPUT);
 
     //set button pin to input
     pinMode(BUTTON_PIN, INPUT);
@@ -545,6 +552,7 @@ void loop()
 
     //enter wait state (WORKS)
     printedWaiting=false;
+    //delay(4000);
     waitForButton();
     Serial.println("READING INPUT");
 
